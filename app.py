@@ -78,7 +78,9 @@ def image_to_circle(img):
 
 
 def image_to_vignette(img, overlay):
-
+    '''
+    Adding the CEC layer around the image
+    '''
     img = image_to_circle(img)
 
     img = img.convert("RGBA")
@@ -114,7 +116,7 @@ def main():
     valid_images = [".jpg",".jpeg", ".png"]
     files = st.file_uploader(
         label=
-        'Selectionner des fichiers (au format JPG, JPEG ou PNG)',
+        'Sélectionner des fichiers (au format JPG, JPEG ou PNG)',
         type=valid_images,
         accept_multiple_files=True)
 
