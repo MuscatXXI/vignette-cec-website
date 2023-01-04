@@ -169,10 +169,10 @@ title_cols[1].image('LogoCEC.png')
 st.title('Editeur de vignette')
 
 st.markdown('''
-            Ce site permet, à partir d'une photo de profil, d'obtenir:
+            A partir d'une photo de profil, ce site permet d'obtenir:
             ''')
 st.markdown(" - sa version rognée en rond ")
-st.markdown(" - ainsi que la vignette associée  ")
+st.markdown(" - ainsi que la vignette CEC associée  ")
 st.markdown('''
             Il est possible d'éditer plusieurs photos à la fois.
             ''')
