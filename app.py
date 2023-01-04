@@ -98,7 +98,7 @@ def image_to_vignette(img, overlay):
 
     return Image.alpha_composite(overlay, img_resized_tbg)
 
-def main():
+def main(cercle,vignette):
     # Set valid format for upload, then upload
     valid_images = [".jpg",".jpeg", ".png"]
     files = st.file_uploader(
@@ -117,44 +117,66 @@ def main():
     with zipfile.ZipFile(zip_name, mode='w',compression=zipfile.ZIP_DEFLATED) as z:
         for file in files:
             if file is not None:
-                file_name_circle = f"{os.path.splitext(file.name)[0]}_cercle{os.path.splitext(file.name)[1]}"
-                file_name_vignette = f"{os.path.splitext(file.name)[0]}_vignette{os.path.splitext(file.name)[1]}"
+
+                img = load_image(file)
 
                 # Creating the circle image
-                img = load_image(file)
-                img_circle = image_to_circle(img)
-
-                img_circle_buffer = io.BytesIO()
-                img_circle.save(img_circle_buffer, format="PNG")
-                z.writestr(zinfo_or_arcname=file_name_circle, data=img_circle_buffer.getvalue())
+                if cercle:
+                    file_name_circle = f"{os.path.splitext(file.name)[0]}_cercle{os.path.splitext(file.name)[1]}"
+                    img_circle = image_to_circle(img)
+                    img_circle_buffer = io.BytesIO()
+                    img_circle.save(img_circle_buffer, format="PNG")
+                    z.writestr(zinfo_or_arcname=file_name_circle, data=img_circle_buffer.getvalue())
+                    #img_circle_buffer.close()
 
                 # Creating the vignette image
-                img_vignette_buffer = io.BytesIO()
-                img_vignette = image_to_vignette(img, overlay)
-
-                img_vignette.save(img_vignette_buffer, format="PNG")
-                z.writestr(zinfo_or_arcname=file_name_vignette, data=img_vignette_buffer.getvalue())
-
-                img_circle_buffer.close()
-                img_vignette_buffer.close()
+                if vignette:
+                    file_name_vignette = f"{os.path.splitext(file.name)[0]}_vignette{os.path.splitext(file.name)[1]}"
+                    img_vignette_buffer = io.BytesIO()
+                    img_vignette = image_to_vignette(img, overlay)
+                    img_vignette.save(img_vignette_buffer, format="PNG")
+                    z.writestr(zinfo_or_arcname=file_name_vignette, data=img_vignette_buffer.getvalue())
+                    #img_vignette_buffer.close()
 
                 #Display images on website
-                cols = st.columns(2)
-                cols[0].image(img_circle.resize((50,50)))
-                cols[1].image(img_vignette.resize((50, 50)))
+                if vignette and cercle:
+                    cols = st.columns(2)
+                    cols[0].image(img_circle.resize((50,50)))
+                    cols[1].image(img_vignette.resize((50, 50)))
+                elif vignette and not cercle:
+                    st.image(img_vignette.resize((50, 50)))
+                elif not vignette and cercle:
+                    st.image(img_circle.resize((50,50)))
+                else:
+                    continue
 
     # Download button appears if some images have been processed
-    if len(files) > 0:
-        with open(zip_name, mode='rb') as z:
-            st.download_button(
-                        label="Télécharger les vignettes",
-                        data=z,
-                        file_name=zip_name,
-                        mime="application/zip")
 
+    if len(files) > 0:
+        if (vignette and cercle) or len(files) > 1:
+            with open(zip_name, mode='rb') as z:
+                st.download_button(
+                            label="Télécharger",
+                            data=z,
+                            file_name=zip_name,
+                            mime="application/zip")
+        elif (vignette and not cercle) and len(files) == 1:
+            st.download_button(label="Télécharger",
+                               data=img_vignette_buffer,
+                               file_name=file_name_vignette,
+                               mime="image/png")
+        elif (not vignette and cercle) and len(files) == 1:
+            st.download_button(label="Télécharger",
+                               data=img_circle_buffer,
+                               file_name=file_name_circle,
+                               mime="image/png")
     #Remove the temp directory created in the repo
     os.remove(zip_name)
-
+    try:
+        img_circle_buffer.close()
+        img_vignette_buffer.close()
+    except Exception:
+        pass
 
 ########################################################
 ########################################################
@@ -171,14 +193,28 @@ st.title('Editeur de vignette')
 st.markdown('''
             A partir d'une photo de profil, ce site permet d'obtenir:
             ''')
-st.markdown(" - sa version rognée en rond ")
-st.markdown(" - ainsi que la vignette CEC associée  ")
+img_cercle_controle = load_image("cercle_controle.jpg")
+img_vignette_controle = load_image("vignette_controle.png")
+
+c_bullet = st.columns(2)
+cercle = c_bullet[0].checkbox('sa version rognée en rond (optionnel)',
+                              value=False)
+c_bullet[1].image(img_cercle_controle.resize((50, 50)))
+
+v_bullet = st.columns(2)
+vignette = v_bullet[0].checkbox(
+    'ainsi que la vignette CEC associée', value=True,
+    disabled=False)  # Set disable=True to have the checkbox mandatory
+v_bullet[1].image(img_vignette_controle.resize((50, 50)))
+
 st.markdown('''
             Il est possible d'éditer plusieurs photos à la fois.
             ''')
 st.markdown('')
 
-main()
+
+
+main(cercle,vignette)
 
 st.markdown('')
 st.caption('''
