@@ -197,7 +197,7 @@ img_cercle_controle = load_image("cercle_controle.jpg")
 img_vignette_controle = load_image("vignette_controle.png")
 
 c_bullet = st.columns(2)
-cercle = c_bullet[0].checkbox('sa version rognée en rond (optionnel)',
+cercle = c_bullet[0].checkbox('sa version rognée en rond',
                               value=False)
 c_bullet[1].image(img_cercle_controle.resize((50, 50)))
 
