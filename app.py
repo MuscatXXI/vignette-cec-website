@@ -1,32 +1,16 @@
 import streamlit as st
-
-from PIL import Image,ImageChops,ImageDraw
+from PIL import Image,ImageDraw
 import numpy as np
 import os
-from typing import Dict
-
 import zipfile
-
 from datetime import datetime as dt
-
 import io
-
-title_cols = st.columns([2,6,2])
-
-title_cols[1].image('LogoCEC.png')
-
-'''
-# Editeur de vignettes
-'''
-
-st.markdown('''
-Ce site est une version Beta, pour usage interne à la CEC.
-''')
-st.markdown('''Merci de me contacter si vous constatez un problème (Arthur C de la CEC BL&A)''')
-st.markdown('''''')
 
 @st.cache
 def load_image(img):
+    '''
+    Opens an Image
+    '''
     return Image.open(img)
 
 def square_crop_in_center(img):
@@ -38,6 +22,7 @@ def square_crop_in_center(img):
     new_width = min(width, height)
     new_height = min(width, height)
 
+    # New corners of the frame
     left = (width - new_width) / 2
     top = (height - new_height) / 2
     right = (width + new_width) / 2
@@ -79,7 +64,8 @@ def image_to_circle(img):
 
 def image_to_vignette(img, overlay):
     '''
-    Adding the CEC layer around the image
+    Adding the CEC layer around the
+    Takes an image and the overlay, returns an image
     '''
     img = image_to_circle(img)
 
@@ -113,10 +99,11 @@ def image_to_vignette(img, overlay):
     return Image.alpha_composite(overlay, img_resized_tbg)
 
 def main():
+    # Set valid format for upload, then upload
     valid_images = [".jpg",".jpeg", ".png"]
     files = st.file_uploader(
         label=
-        'Sélectionner des fichiers (au format JPG, JPEG ou PNG)',
+        'Sélectionner une ou plusieurs photos (jpg, jpeg ou png)',
         type=valid_images,
         accept_multiple_files=True)
 
@@ -133,7 +120,7 @@ def main():
                 file_name_circle = f"{os.path.splitext(file.name)[0]}_cercle{os.path.splitext(file.name)[1]}"
                 file_name_vignette = f"{os.path.splitext(file.name)[0]}_vignette{os.path.splitext(file.name)[1]}"
 
-
+                # Creating the circle image
                 img = load_image(file)
                 img_circle = image_to_circle(img)
 
@@ -141,6 +128,7 @@ def main():
                 img_circle.save(img_circle_buffer, format="PNG")
                 z.writestr(zinfo_or_arcname=file_name_circle, data=img_circle_buffer.getvalue())
 
+                # Creating the vignette image
                 img_vignette_buffer = io.BytesIO()
                 img_vignette = image_to_vignette(img, overlay)
 
@@ -150,11 +138,12 @@ def main():
                 img_circle_buffer.close()
                 img_vignette_buffer.close()
 
-                #Display images
+                #Display images on website
                 cols = st.columns(2)
                 cols[0].image(img_circle.resize((50,50)))
                 cols[1].image(img_vignette.resize((50, 50)))
 
+    # Download button appears if some images have been processed
     if len(files) > 0:
         with open(zip_name, mode='rb') as z:
             st.download_button(
@@ -162,6 +151,36 @@ def main():
                         data=z,
                         file_name=zip_name,
                         mime="application/zip")
+
+    #Remove the temp directory created in the repo
     os.remove(zip_name)
 
+
+########################################################
+########################################################
+# WEBSITE STARTS HERE
+########################################################
+########################################################
+
+title_cols = st.columns([2, 6, 2])
+
+title_cols[1].image('LogoCEC.png')
+
+st.title('Editeur de vignette')
+
+st.markdown('''
+            Ce site permet, à partir d'une photo de profil, d'obtenir:
+            ''')
+st.markdown(" - sa version rognée en rond ")
+st.markdown(" - ainsi que la vignette associée  ")
+st.markdown('''
+            Il est possible d'éditer plusieurs photos à la fois.
+            ''')
+st.markdown('')
+
 main()
+
+st.markdown('')
+st.caption('''
+Version Beta, pour usage interne à la CEC. Réalisé par Arthur C de la CEC BL&A (contact en cas de problème).
+''')
