@@ -5,6 +5,7 @@ import os
 import zipfile
 from datetime import datetime as dt
 import io
+import pytz
 
 @st.cache
 def load_image(img):
@@ -99,7 +100,7 @@ def image_to_vignette(img, overlay):
     img_resized_tbg.paste(img_resized, offset_to_center)
 
 
-    return Image.alpha_composite(overlay, img_resized_tbg) #square_crop_in_center(Image.alpha_composite(overlay, img_resized_tbg),inner_px_zoom=2)
+    return image_to_circle(square_crop_in_center(Image.alpha_composite(overlay, img_resized_tbg),inner_px_zoom=1))
 
 def main(cercle,vignette):
     # Set valid format for upload, then upload
@@ -110,11 +111,11 @@ def main(cercle,vignette):
         type=valid_images,
         accept_multiple_files=True)
 
-    # Loading overlay
+    # Loading overlay & circle it
     overlay = load_image("Profil_CEC_600x600_vide.png")
 
     #Create compressed zip archive and add files
-    zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
+    zip_name = '_'.join([dt.now(pytz.timezone('Europe/Paris')).strftime('%Y-%m-%d_%H:%M:%S'),
                         'vignettes_cec'])
 
     with zipfile.ZipFile(zip_name, mode='w',compression=zipfile.ZIP_DEFLATED) as z:
