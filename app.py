@@ -73,7 +73,7 @@ def image_to_vignette(img, overlay):
     overlay = overlay.convert("RGBA")
 
     # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coef = 1, output is (300,300) pixels
-    coef = 0.5
+    coef = 2
 
     # Making overlay squared (current overlay is 300*302)
     o_w, o_h = overlay.size
@@ -84,11 +84,12 @@ def image_to_vignette(img, overlay):
     o_w, o_h = overlay.size
 
     # Downsizing the image
-    new_size = (220 * coef, 220 * coef)
+    inner_circle_size = 377
+    new_size = (inner_circle_size * coef, inner_circle_size * coef)
     img_resized = img.resize(new_size, Image.Resampling.LANCZOS)
     i_w, i_h = img_resized.size
 
-    px_vertical_offset = 1 * coef  # it seems transparent circle is not perfectly centered
+    px_vertical_offset = 0 * coef  # if transparent circle is not perfectly vertically centered, O px offset in this version
     offset_to_center = ((o_w - i_w) // 2,
                         (o_h - i_h) // 2 + px_vertical_offset)
 
