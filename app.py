@@ -6,7 +6,7 @@ import zipfile
 from datetime import datetime as dt
 import io
 
-@st.cache
+@st.cache_data
 def load_image(img):
     '''
     Opens an Image
@@ -108,7 +108,7 @@ def main(cercle,vignette):
         accept_multiple_files=True)
 
     # Loading overlay
-    overlay = load_image("masque.png")
+    overlay = load_image("LK_Profil_CEC_600x600_vide.png")
 
     #Create compressed zip archive and add files
     zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
