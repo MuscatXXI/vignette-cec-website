@@ -113,7 +113,7 @@ def main(cercle,vignette):
 
     #Create compressed zip archive and add files
     zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
-                        'vignettes_cec'])
+                        'vignettes_cec.zip'])
 
     with zipfile.ZipFile(zip_name, mode='w',compression=zipfile.ZIP_DEFLATED) as z:
         for file in files:
