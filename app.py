@@ -5,6 +5,7 @@ import os
 import zipfile
 from datetime import datetime as dt
 import io
+import pytz
 
 @st.cache_data
 def load_image(img):
@@ -13,7 +14,7 @@ def load_image(img):
     '''
     return Image.open(img)
 
-def square_crop_in_center(img):
+def square_crop_in_center(img,inner_px_zoom=0):
     '''
     Crop the image to the biggest centered square
     Takes an image, returns an image
@@ -23,10 +24,10 @@ def square_crop_in_center(img):
     new_height = min(width, height)
 
     # New corners of the frame
-    left = (width - new_width) / 2
-    top = (height - new_height) / 2
-    right = (width + new_width) / 2
-    bottom = (height + new_height) / 2
+    left = (width - new_width) / 2 + inner_px_zoom
+    top = (height - new_height) / 2 + inner_px_zoom
+    right = (width + new_width) / 2 - inner_px_zoom
+    bottom = (height + new_height) / 2 - inner_px_zoom
 
     # Crop the center of the image
     return img.crop((left, top, right, bottom))
@@ -39,9 +40,10 @@ def image_to_circle(img):
     img = img.convert("RGB")
     # Make img as a square if not
     h, w = img.size
-    if h != w:
-        img = square_crop_in_center(img)
 
+    if h != w:
+        img = square_crop_in_center(img,inner_px_zoom=2)
+    
     # Open the input image as numpy array, convert to RGB
     npImage = np.array(img)
     h, w = img.size
@@ -72,16 +74,20 @@ def image_to_vignette(img, overlay):
     img = img.convert("RGBA")
     overlay = overlay.convert("RGBA")
 
+
     # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coef = 1, output is (300,300) pixels
     coef = 2
 
+
     # Making overlay squared (current overlay is 300*302)
     o_w, o_h = overlay.size
-    overlay = overlay.resize((o_w * coef, o_h * coef),
+    if coef != 1:
+        overlay = overlay.resize((o_w * coef, o_h * coef),
                              Image.Resampling.LANCZOS)
 
     #New overlay size
     o_w, o_h = overlay.size
+
 
     # Downsizing the image
     inner_circle_size = 377
@@ -90,6 +96,7 @@ def image_to_vignette(img, overlay):
     i_w, i_h = img_resized.size
 
     px_vertical_offset = 0 * coef  # if transparent circle is not perfectly vertically centered, O px offset in this version
+
     offset_to_center = ((o_w - i_w) // 2,
                         (o_h - i_h) // 2 + px_vertical_offset)
 
@@ -97,7 +104,7 @@ def image_to_vignette(img, overlay):
     img_resized_tbg.paste(img_resized, offset_to_center)
 
 
-    return Image.alpha_composite(overlay, img_resized_tbg)
+    return image_to_circle(square_crop_in_center(Image.alpha_composite(overlay, img_resized_tbg),inner_px_zoom=1))
 
 def main(cercle,vignette):
     # Set valid format for upload, then upload
@@ -108,12 +115,14 @@ def main(cercle,vignette):
         type=valid_images,
         accept_multiple_files=True)
 
+    
     # Loading overlay
     overlay = load_image("LK_Profil_CEC_600x600_vide.png")
 
     #Create compressed zip archive and add files
     zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
                         'vignettes_cec.zip'])
+
 
     with zipfile.ZipFile(zip_name, mode='w',compression=zipfile.ZIP_DEFLATED) as z:
         for file in files:
