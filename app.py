@@ -193,7 +193,7 @@ st.title('Editeur de vignette')
 st.markdown('''
             A partir d'une photo de profil, ce site permet d'obtenir:
             ''')
-img_cercle_controle = load_image("cercle_controle.jpg")
+img_cercle_controle = load_image("cercle_controle.png")
 img_vignette_controle = load_image("vignette_controle.png")
 
 c_bullet = st.columns(2)
