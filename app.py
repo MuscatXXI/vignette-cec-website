@@ -72,8 +72,8 @@ def image_to_vignette(img, overlay):
     img = img.convert("RGBA")
     overlay = overlay.convert("RGBA")
 
-    # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coaf = 1, output is (300,300) pixels
-    coef = 3
+    # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coef = 1, output is (300,300) pixels
+    coef = 2
 
     # Making overlay squared (current overlay is 300*302)
     o_w, o_h = overlay.size
