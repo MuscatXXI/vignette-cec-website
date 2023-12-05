@@ -187,7 +187,7 @@ def main(cercle,vignette):
 
 title_cols = st.columns([2, 6, 2])
 
-title_cols[1].image('LogoCEC.png')
+title_cols[1].image('Logo_CEC_Association.png')
 
 st.title('Editeur de vignette')
 
