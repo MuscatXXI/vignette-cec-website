@@ -185,7 +185,7 @@ def main(cercle,vignette):
 ########################################################
 ########################################################
 
-title_cols = st.columns([3, 5, 3])
+title_cols = st.columns([3, 3, 3])
 
 title_cols[1].image('Logo_CEC_Association.png')
 
