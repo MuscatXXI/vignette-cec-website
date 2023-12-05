@@ -7,7 +7,7 @@ from datetime import datetime as dt
 import io
 import pytz
 
-@st.cache
+@st.cache_data
 def load_image(img):
     '''
     Opens an Image
@@ -74,8 +74,10 @@ def image_to_vignette(img, overlay):
     img = img.convert("RGBA")
     overlay = overlay.convert("RGBA")
 
-    # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coaf = 1, output is (300,300) pixels
-    coef = 1
+
+    # Coef used to oversize the overlay, in order to keep image picture quality hihg enough on result. If coef = 1, output is (300,300) pixels
+    coef = 2
+
 
     # Making overlay squared (current overlay is 300*302)
     o_w, o_h = overlay.size
@@ -86,13 +88,15 @@ def image_to_vignette(img, overlay):
     #New overlay size
     o_w, o_h = overlay.size
 
-    # Downsizing the image to fit innner circle
-    size = 436
-    new_size = (size * coef, size * coef)
+
+    # Downsizing the image
+    inner_circle_size = 377
+    new_size = (inner_circle_size * coef, inner_circle_size * coef)
     img_resized = img.resize(new_size, Image.Resampling.LANCZOS)
     i_w, i_h = img_resized.size
 
-    px_vertical_offset = 4 * coef  # it seems transparent circle is not perfectly centered
+    px_vertical_offset = 0 * coef  # if transparent circle is not perfectly vertically centered, O px offset in this version
+
     offset_to_center = ((o_w - i_w) // 2,
                         (o_h - i_h) // 2 + px_vertical_offset)
 
@@ -111,12 +115,14 @@ def main(cercle,vignette):
         type=valid_images,
         accept_multiple_files=True)
 
-    # Loading overlay & circle it
-    overlay = load_image("Profil_CEC_600x600_vide.png")
+    
+    # Loading overlay
+    overlay = load_image("LK_Profil_CEC_600x600_vide.png")
 
     #Create compressed zip archive and add files
-    zip_name = '_'.join([dt.now(pytz.timezone('Europe/Paris')).strftime('%Y-%m-%d_%H:%M:%S'),
-                        'vignettes_cec'])
+    zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
+                        'vignettes_cec.zip'])
+
 
     with zipfile.ZipFile(zip_name, mode='w',compression=zipfile.ZIP_DEFLATED) as z:
         for file in files:
@@ -188,16 +194,16 @@ def main(cercle,vignette):
 ########################################################
 ########################################################
 
-title_cols = st.columns([2, 6, 2])
+title_cols = st.columns([3, 3, 3])
 
-title_cols[1].image('LogoCEC.png')
+title_cols[1].image('Logo_CEC_Association.png')
 
 st.title('Editeur de vignette')
 
 st.markdown('''
             A partir d'une photo de profil, ce site permet d'obtenir:
             ''')
-img_cercle_controle = load_image("cercle_controle.jpg")
+img_cercle_controle = load_image("cercle_controle.png")
 img_vignette_controle = load_image("vignette_controle.png")
 
 c_bullet = st.columns(2)
