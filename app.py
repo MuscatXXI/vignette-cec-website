@@ -219,5 +219,5 @@ main(cercle,vignette)
 
 st.markdown('')
 st.caption('''
-Version Beta, pour usage interne à la CEC. Réalisé par Arthur C de la CEC BL&A (contact en cas de problème).
+Version 1.1, pour usage interne à la CEC. Réalisé par Arthur C de la CEC BL&A (contact en cas de problème).
 ''')
