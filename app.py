@@ -117,7 +117,7 @@ def main(cercle,vignette):
 
     
     # Loading overlay
-    overlay = load_image("LK_Profil_CEC_600x600_vide.png")
+    overlay = load_image("LK_Profil_CEC_600x600_vide_3.png")
 
     #Create compressed zip archive and add files
     zip_name = '_'.join([dt.today().strftime('%Y-%m-%d_%H:%M:%S'),
