@@ -5,7 +5,6 @@ import os
 import zipfile
 from datetime import datetime as dt
 import io
-import pytz
 
 @st.cache_data
 def load_image(img):
@@ -106,6 +105,7 @@ def image_to_vignette(img, overlay):
 
     return image_to_circle(square_crop_in_center(Image.alpha_composite(overlay, img_resized_tbg),inner_px_zoom=1))
 
+@st.cache_data
 def main(cercle,vignette):
     # Set valid format for upload, then upload
     valid_images = [".jpg",".jpeg", ".png"]
